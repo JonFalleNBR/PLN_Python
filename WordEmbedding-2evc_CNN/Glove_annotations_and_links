@@ -1,0 +1,23 @@
+O GloVe é uma extensão do Word2Vec e utiliza um algoritmo de aprendizagem não supervisionado para a obtenção de representações vetoriais para palavras. O treinamento é realizado em estatísticas globais agregadas de coocorrência palavra-palavra de um corpus.
+
+Saiba Mais
+Veja, nos artigos a seguir, mais sobre Word2Vec e GloVe:
+
+https://machinelearninginterview.com/topics/natural-language-processing/what-is-the-difference-between-word2vec-and-glove/
+https://towardsdatascience.com/pre-trained-word-embedding-for-text-classification-end2end-approach-5fbf5cd8aead
+https://edumunozsala.github.io/BlogEms/jupyter/nlp/classification/embeddings/python/2020/08/15/Intro_NLP_WordEmbeddings_Classification.html
+https://blog.keras.io/using-pre-trained-word-embeddings-in-a-keras-model.html
+https://machinelearningmastery.com/use-word-embedding-layers-deep-learning-keras/
+https://realpython.com/python-keras-text-classification/
+Então, vamos baixar os arquivos necessários:
+
+Tutorial
+Como o Word2Vec é bastante grande, vamos empregar em nosso exemplo o GloVe.
+
+Vamos utilizar o modelo treinado com 6 bilhões de tokens (arquivo glove.6B.zip), cujo tamanho é 822 MB.
+
+Após descompactar o ZIP glove.6B.zip, nos interessa apenas o arquivo glove.6B.50d.txt (com apenas 50 dimensões), cujo tamanho é 167 MB, o qual está disponível neste link: https://drive.google.com/file/d/1G2WuayKxeaq9PMcP2f7MPULZwXkViX1s/view?usp=sharing. Carregue esse arquivo em seu Drive. Monte o drive no Google Colab para poder utilizá-lo.
+
+Se quiser baixar o arquivo glove.6B.zip para testar com outras dimensões, baixe-o por meio deste link: https://drive.google.com/file/d/1G1m-llZhxBXjPOSQmNomMWN4nNi9u3Gk/view?usp=sharing.
+
+Esses arquivos estão também disponíveis em https://github.com/stanfordnlp/GloVe e https://nlp.stanford.edu/projects/glove/.
