@@ -4,7 +4,6 @@ import pyaudio
 #import speech_recognition as sr
 
 import speech_recognition as sr
-print("Biblioteca instalada corretamente!")
 
 #pip install pipwin
 #pip install pyaudio
