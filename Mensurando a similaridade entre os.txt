@@ -1,0 +1,173 @@
+Mensurando a similaridade entre os textos em Python
+
+A simple real-world data for this demonstration is obtained from the movie review corpus provided by nltk (Pang & Lee, 2004). The first two reviews from the positive set and the negative set are selected. Then the first sentence of these for reviews are selected. We can first define 4 documents in Python as: 
+
+1
+2
+3
+4
+5
+ d1 = "plot: two teen couples go to a church party, drink and then drive."
+ d2 = "films adapted from comic books have had plenty of success , whether they're about superheroes ( batman , superman , spawn ) , or geared toward kids ( casper ) or the arthouse crowd ( ghost world ) , but there's never really been a comic book like from hell before . "
+ d3 = "every now and then a movie comes along from a suspect studio , with every indication that it will be a stinker , and to everybody's surprise ( perhaps even the studio ) the film becomes a critical darling . "
+ d4 = "damn that y2k bug . "
+ documents = [d1, d2, d3, d4]
+a. Preprocessing with nltk
+
+The default functions of CountVectorizer and TfidfVectorizer in scikit-learn detect word boundary and remove punctuations automatically. However, if we want to do stemming or lemmatization, we need to customize certain parameters in CountVectorizer and TfidfVectorizer. Doing this overrides the default tokenization setting, which means that we have to customize tokenization, punctuation removal, and turning terms to lower case altogether.
+
+Normalize by stemming:
+
+1
+2
+3
+4
+5
+6
+7
+8
+ import nltk, string, numpy
+ nltk.download('punkt') # first-time use only
+ stemmer = nltk.stem.porter.PorterStemmer()
+ def StemTokens(tokens):
+     return [stemmer.stem(token) for token in tokens]
+ remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
+ def StemNormalize(text):
+     return StemTokens(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))
+Normalize by lemmatization:
+
+1
+2
+3
+4
+5
+6
+7
+ nltk.download('wordnet') # first-time use only
+ lemmer = nltk.stem.WordNetLemmatizer()
+ def LemTokens(tokens):
+     return [lemmer.lemmatize(token) for token in tokens]
+ remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
+ def LemNormalize(text):
+     return LemTokens(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))
+If we want more meaningful terms in their dictionary forms, lemmatization is preferred.
+
+b. Turn text into vectors of term frequency:
+
+1
+2
+3
+ from sklearn.feature_extraction.text import CountVectorizer
+ LemVectorizer = CountVectorizer(tokenizer=LemNormalize, stop_words='english')
+ LemVectorizer.fit_transform(documents)
+
+Normalized (after lemmatization) text in the four documents are tokenized and each term is indexed:
+
+print LemVectorizer.vocabulary_
+Out:
+
+{u'spawn': 29, u'crowd': 11, u'casper': 5, u'church': 6, u'hell': 20,
+ u'comic': 8, u'superheroes': 33, u'superman': 34, u'plot': 27, u'movie': 24,
+ u'book': 3, u'suspect': 36, u'film': 17, u'party': 25, u'darling': 13, u'really': 28, 
+ u'teen': 37, u'everybodys': 16, u'damn': 12, u'batman': 2, u'couple': 9, u'drink': 14,
+ u'like': 23, u'geared': 18, u'studio': 31, u'plenty': 26, u'surprise': 35, u'world': 39,
+ u'come': 7, u'bug': 4, u'kid': 22, u'ghost': 19, u'arthouse': 1, u'y2k': 40,
+ u'stinker': 30, u'success': 32, u'drive': 15, u'theyre': 38, u'indication': 21,
+ u'critical': 10, u'adapted': 0}
+And we have the tf matrix:
+
+tf_matrix = LemVectorizer.transform(documents).toarray()
+print tf_matrix
+Out:
+
+[[0 0 0 0 0 0 1 0 0 1 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0
+  1 0 0 0]
+ [1 1 1 2 0 1 0 0 2 0 0 1 0 0 0 0 0 1 1 1 1 0 1 1 0 0 1 0 1 1 0 0 1 1 1 0 0
+  0 1 1 0]
+ [0 0 0 0 0 0 0 1 0 0 1 0 0 1 0 0 1 1 0 0 0 1 0 0 1 0 0 0 0 0 1 2 0 0 0 1 1
+  0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1]]
+This should be a 4 (# of documents) by 41 (# of terms in the corpus). Check its shape:
+
+tf_matrix.shape
+Out:
+
+(4, 41)
+c. Calculate idf and turn tf matrix to tf-idf matrix:
+
+Get idf:
+
+1
+2
+3
+4
+ from sklearn.feature_extraction.text import TfidfTransformer
+ tfidfTran = TfidfTransformer(norm="l2")
+ tfidfTran.fit(tf_matrix)
+ print tfidfTran.idf_
+Out:
+
+1
+2
+3
+4
+5
+6
+7
+[ 1.91629073  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073
+  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073
+  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073  1.51082562
+  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073
+  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073
+  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073
+  1.91629073  1.91629073  1.91629073  1.91629073  1.91629073]
+Now we have a vector where each component is the idf for each term. In this case, the values are almost the same because other than one term, each term only appears in 1 document. The exception is the 18th term that appears in 2 document. We can corroborate the result.
+
+import math
+def idf(n,df):
+    result = math.log((n+1.0)/(df+1.0)) + 1
+    return result
+print "The idf for terms that appear in one document: " + str(idf(4,1))
+print "The idf for terms that appear in two documents: " + str(idf(4,2))
+Out:
+
+The idf for terms that appear in one document: 1.91629073187
+The idf for terms that appear in two documents: 1.51082562377
+which is exactly the same as the result from TfidfTransformer. Also, the idf is indeed smaller when df(d, t) is larger.
+
+d. Get the tf-idf matrix (4 by 41):
+
+tfidf_matrix = tfidfTran.transform(tf_matrix)
+print tfidf_matrix.toarray()
+Here what the transform method does is multiplying the tf matrix (4 by 41) by the diagonal idf matrix (41 by 41 with idf for each term on the main diagonal), and dividing the tf-idf by the Euclidean norm. This output takes too much space and you can check it by yourself.
+
+e. Get the pairwise similarity matrix (n by n):
+
+cos_similarity_matrix = (tfidf_matrix * tfidf_matrix.T).toarray()
+print cos_similarity_matrix
+Out:
+
+array([[ 1.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        ,  1.        ,  0.03264186,  0.        ],
+       [ 0.        ,  0.03264186,  1.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ,  1.        ]])
+The matrix obtained in the last step is multiplied by its transpose. The result is the similarity matrix, which indicates that d2 and d3 are more similar to each other than any other pair.
+
+f. Use TfidfVectorizer instead:
+
+Scikit-learn actually has another function TfidfVectorizer that combines the work of CountVectorizer and TfidfTransformer, which makes the process more efficient.
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
+def cos_similarity(textlist):
+    tfidf = TfidfVec.fit_transform(textlist)
+    return (tfidf * tfidf.T).toarray()
+cos_similarity(documents)
+Out:
+
+array([[ 1.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        ,  1.        ,  0.03264186,  0.        ],
+       [ 0.        ,  0.03264186,  1.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ,  1.        ]])
+which returns the same result.

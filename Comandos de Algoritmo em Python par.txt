@@ -1,0 +1,32 @@
+Informações muito Uteis
+Instrutor : HENRIQUE RUIZ POYATOS NETO
+
+Comandos de Algoritmo em Python para PLN 
+
+Curso do Google para introdução a IA Generativa 
+https://www.cloudskillsboost.google/course_templates/536?locale=pt_BR
+
+Link do exemplo passado em aula pelo Professor 
+https://colab.research.google.com/drive/1AtUd4aKPteeMwAuOonvBUBQUBD21zqbg?usp=sharing
+
+from nltk.stem import RSLPStemmer
+nltk.download('rslp')
+stemmer = RSLPStemmer()
+palavras_stemizadas = [stemmer.stem(palavra) for palavra in palavras_sem_pontuacao]
+print("Palavras stemizadas:", palavras_stemizadas)
+ 
+
+!pip install spacy
+!python -m spacy download pt_core_news_sm
+
+
+import spacy
+# Carregar o modelo do spacy para português
+nlp = spacy.load("pt_core_news_sm")
+
+# Processar a frase
+doc = nlp(texto)
+ 
+# Exibir dependências sintáticas
+for token in doc:
+    print(f"{token.text:<10} -> {token.dep_:<15} (head: {token.head.text})")
